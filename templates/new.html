@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropYield Pro - AI-Powered Crop Yield Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+         :root {
+            --primary: #2e7d32;
+            --secondary: #7cb342;
+            --accent: #ffa000;
+            --light: #f1f8e9;
+            --dark: #1b5e20;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background-color: var(--primary);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+            transform: translateY(-2px);
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=800&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 120px 0;
+            text-align: center;
+        }
+        
+        .section-title {
+            position: relative;
+            margin-bottom: 40px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--accent);
+            margin: 15px auto;
+        }
+        
+        .feature-card {
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            margin-bottom: 20px;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 30px;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--dark);
+            border-color: var(--dark);
+        }
+        
+        .btn-outline-primary {
+            color: var(--primary);
+            border-color: var(--primary);
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 30px;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .language-selector {
+            background-color: var(--light);
+            border-radius: 20px;
+            padding: 5px 15px;
+            border: 1px solid var(--secondary);
+        }
+        
+        .crop-card {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .crop-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        .social-icon {
+            font-size: 1.5rem;
+            color: white;
+            margin-right: 15px;
+            transition: color 0.3s;
+        }
+        
+        .social-icon:hover {
+            color: var(--accent);
+        }
+        
+        .prediction-form {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+        }
+        
+        .result-container {
+            display: none;
+            background-color: var(--light);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .yield-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .recommendation-card {
+            border-left: 4px solid var(--accent);
+        }
+        
+        .crop-image {
+            height: 200px;
+            object-fit: cover;
+        }
+        /* AI Chatbot Styles */
+        
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .chatbot-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .chatbot-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .chatbot-window {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 350px;
+            height: 450px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chatbot-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chatbot-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .bot-message {
+            background-color: #e8f5e9;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .user-message {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .chatbot-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .chatbot-input input {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .chatbot-input button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        /* Loading animation */
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        /* Model info */
+        
+        .model-info {
+            background-color: #e8f5e9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        /* Chart container */
+        
+        .chart-container {
+            margin-top: 30px;
+            height: 300px;
+        }
+        /* Confidence badge */
+        
+        .confidence-badge {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 15px;
+            background-color: var(--secondary);
+            color: white;
+        }
+        /* Factor bars */
+        
+        .factor-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+        
+        .factor-progress {
+            height: 100%;
+            border-radius: 4px;
+            background-color: var(--primary);
+        }
+        /* Notification toast */
+        
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            display: none;
+        }
+        /* Interactive map */
+        
+        .interactive-map {
+            border-radius: 15px;
+            overflow: hidden;
+            height: 400px;
+            background-color: #e8f5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        /* Real-time data cards */
+        
+        .data-card {
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .data-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        /* Animation for elements */
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        /* Toggle switch */
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked+.toggle-slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked+.toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .translate-dropdown {
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            background-color: #fff;
+        }
+        
+        .translate-dropdown:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+    </style>
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-seedling me-2"></i>CropYield Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#prediction">Prediction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#crops">Crops</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                    <!--<li class="nav-item">
+                        <select class="translate-dropdown" onchange="translatePage(this.value)">
+    <option value="en">English</option>
+    <option value="te">Telugu</option>
+    <option value="hi">Hindi</option>
+    <option value="es">Spanish</option>
+    <option value="fr">French</option>
+  </select> -->
+                    <li class="nav-item">
+                        <!-- Language dropdown (only shown if location not allowed) -->
+                        <div id="languageBox" style="display:none;">
+                            <label for="language"></label>
+                            <select id="language">
+    <option value="">Select Language</option>
+    <option value="en">English</option>
+    <option value="hi">Hindi</option>
+    <option value="or">Odia</option>
+  </select>
+                        </div>
+
+                        <!-- Hidden Google Translate Element -->
+                        <div id="google_translate_element" style="display:none;"></div>
+                        <div id="google_translate_element"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h1 class="display-4 fw-bold mb-4">AI-Powered Crop Yield Prediction</h1>
+                    <p class="lead mb-4">Maximize your agricultural productivity with our AI-driven platform that provides accurate yield predictions and actionable recommendations tailored to your crops and regional conditions.</p>
+                    <a href="#prediction" class="btn btn-lg btn-primary me-2">Get Prediction</a>
+                    <a href="#features" class="btn btn-lg btn-outline-light">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3 col-6 mb-4 mb-md-0">
+                    <div class="stat-number">10%</div>
+                    <div class="stat-label">Average Yield Increase</div>
+                </div>
+                <div class="col-md-3 col-6 mb-4 mb-md-0">
+                    <div class="stat-number">5,000+</div>
+                    <div class="stat-label">Farmers Supported</div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-number">15</div>
+                    <div class="stat-label">Crop Types</div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-number">96%</div>
+                    <div class="stat-label">Prediction Accuracy</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <h2 class="text-center section-title">How Our Platform Helps Farmers</h2>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h3 class="h4">Machine Learning Models</h3>
+                            <p class="card-text">Our AI models analyze historical data, weather patterns, and soil conditions to predict yields with 96% accuracy.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-cloud-sun"></i>
+                            </div>
+                            <h3 class="h4">Weather Analysis</h3>
+                            <p class="card-text">Real-time weather data integration for accurate predictions and recommendations based on current and forecasted conditions.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-vial"></i>
+                            </div>
+                            <h3 class="h4">Soil Health Monitoring</h3>
+                            <p class="card-text">Comprehensive soil health metrics analysis to provide tailored fertilization and irrigation recommendations.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3 class="h4">Yield Prediction</h3>
+                            <p class="card-text">Advanced AI algorithms predict crop yields with high accuracy based on historical data and current conditions.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <h3 class="h4">Irrigation Optimization</h3>
+                            <p class="card-text">Smart irrigation recommendations to conserve water while maximizing crop growth and health.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-spray-can"></i>
+                            </div>
+                            <h3 class="h4">Pest Control</h3>
+                            <p class="card-text">Early detection and management strategies for pests and diseases specific to your crops and region.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Data Section -->
+            <div class="mt-5">
+                <h3 class="text-center mb-4">Real-time Agricultural Data</h3>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card data-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-temperature-high fa-3x text-primary mb-3"></i>
+                                <h4>Weather Conditions</h4>
+                                <p>Live weather data from across Odisha</p>
+                                <div class="mt-3">
+                                    <span class="badge bg-info" id="weather-temp">Loading...</span>
+                                    <span class="badge bg-primary" id="weather-humidity">Loading...</span>
+                                    <span class="badge bg-success" id="weather-rainfall">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card data-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-seedling fa-3x text-primary mb-3"></i>
+                                <h4>Crop Health Index</h4>
+                                <p>Current crop health metrics</p>
+                                <div class="progress mt-3" style="height: 20px;">
+                                    <div class="progress-bar bg-success" role="progressbar" id="crop-health-bar" style="width: 78%;" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100">78%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card data-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tint fa-3x text-primary mb-3"></i>
+                                <h4>Soil Moisture Levels</h4>
+                                <p>Regional soil moisture data</p>
+                                <div class="progress mt-3" style="height: 20px;">
+                                    <div class="progress-bar bg-info" role="progressbar" id="soil-moisture-bar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">65%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prediction Section -->
+    <!--<section id="prediction" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center section-title">Crop Yield Prediction</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="prediction-form">
+                        <form id="yieldPredictionForm">
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3">
+                                    <label for="cropType" class="form-label">Crop Type</label>
+                                    <select class="form-select" id="cropType" required>
+                                        <option value="" selected disabled>Select crop type</option>
+                                        <option value="rice">Rice</option>
+                                        <option value="wheat">Wheat</option>
+                                        <option value="corn">Corn</option>
+                                        <option value="sugarcane">Sugarcane</option>
+                                        <option value="cotton">Cotton</option>
+                                        <option value="pulses">Pulses</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="region" class="form-label">Region</label>
+                                    <select class="form-select" id="region" required>
+                                        <option value="" selected disabled>Select your region</option>
+                                        <option value="coastal">Coastal Odisha</option>
+                                        <option value="western">Western Odisha</option>
+                                        <option value="northern">Northern Odisha</option>
+                                        <option value="southern">Southern Odisha</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3">
+                                    <label for="soilType" class="form-label">Soil Type</label>
+                                    <select class="form-select" id="soilType" required>
+                                        <option value="" selected disabled>Select soil type</option>
+                                        <option value="alluvial">Alluvial</option>
+                                        <option value="black">Black</option>
+                                        <option value="red">Red</option>
+                                        <option value="laterite">Laterite</option>
+                                        <option value="mountain">Mountain</option>
+                                        <option value="desert">Desert</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="area" class="form-label">Area (acres)</label>
+                                    <input type="number" class="form-control" id="area" placeholder="Enter land area" min="1" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-4 mb-3">
+                                    <label for="rainfall" class="form-label">Rainfall (mm)</label>
+                                    <input type="number" class="form-control" id="rainfall" placeholder="Enter expected rainfall" min="0" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="temperature" class="form-label">Avg. Temperature (°C)</label>
+                                    <input type="number" class="form-control" id="temperature" placeholder="Enter temperature" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="humidity" class="form-label">Avg. Humidity (%)</label>
+                                    <input type="number" class="form-control" id="humidity" placeholder="Enter humidity" min="0" max="100" required>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-calculator me-2"></i>Predict Yield
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Crop Yield Predictor Form Start -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h1 class="text-center mb-4">🌱 Crop Yield Predictor</h1>
+                <form method="post" action="/predict" id="cropForm">
+
+                    <div class="mb-3">
+                        <label class="form-label">Crop Name</label>
+                        <select class="form-select" name="crop" required>
+                            <option value="wheat">Wheat</option>
+                            <option value="rice">Rice</option>
+                            <option value="maize">Maize</option>
+                            <option value="sugarcane">Sugarcane</option>
+                            <option value="cotton">Cotton</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fertilizer (kg)</label>
+                        <input type="number" class="form-control" name="fertilizer" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Area (hectares)</label>
+                        <input type="number" step="0.01" class="form-control" name="area_hectares" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Soil Type</label>
+                        <select class="form-select" name="soil_type" required>
+                            <option value="clay">Clay</option>
+                            <option value="loamy">Loamy</option>
+                            <option value="sandy">Sandy</option>
+                            <option value="silty">Silty</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Seed Variety</label>
+                        <select class="form-select" name="seed_variety" required>
+                            <option value="VarA">Variety A</option>
+                            <option value="VarB">Variety B</option>
+                            <option value="VarC">Variety C</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Predict Yield</button>
+                    <button type="button" onclick="document.getElementById('cropForm').reset();" class="btn btn-secondary w-100 mt-2">Clear</button>
+                </form>
+                {% if prediction is defined %}
+                <div id="result" class="alert alert-success text-center mt-4 result">
+                    🌾 Predicted Yield for <b>{{ crop }}</b>: {{ prediction }} kg
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Crop Yield Predictor Form End -->
+
+                    <!-- Loading Spinner -->
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Running ML prediction models...</p>
+                        <div class="progress training-progress w-50 mx-auto">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Results Container -->
+                    <div class="result-container" id="resultContainer">
+                        <div class="text-center mb-4">
+                            <h3>Yield Prediction Results</h3>
+                            <div class="yield-value" id="yieldValue">0 kg</div>
+                            <p class="text-muted" id="yieldPerAcre">Per acre: 0 kg</p>
+                            <span class="confidence-badge" id="confidenceBadge">
+                                <i class="fas fa-brain me-1"></i> Confidence: 92%
+                            </span>
+                            <p class="prediction-interval mt-2" id="predictionInterval">Prediction interval: 0 - 0 kg</p>
+                        </div>
+
+                        <div class="chart-container">
+                            <canvas id="yieldChart"></canvas>
+                        </div>
+
+                        <div class="model-info">
+                            <h5><i class="fas fa-info-circle me-2"></i>Model Insights:</h5>
+                            <p id="modelInsights">Our Random Forest model analyzed 15 factors including weather patterns, soil composition, and historical data to generate this prediction.</p>
+                            <div class="mt-3">
+                                <h6>Key Factors Influencing This Prediction:</h6>
+                                <div class="mt-2" id="factorBars">
+                                    <!-- Factor bars will be inserted here by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 recommendation-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><i class="fas fa-tint me-2"></i>Irrigation Recommendation</h5>
+                                        <p class="card-text" id="irrigationRecommendation">Recommendation will appear here</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 recommendation-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><i class="fas fa-seedling me-2"></i>Fertilization Recommendation</h5>
+                                        <p class="card-text" id="fertilizerRecommendation">Recommendation will appear here</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 recommendation-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><i class="fas fa-bug me-2"></i>Pest Control Recommendation</h5>
+                                        <p class="card-text" id="pestRecommendation">Recommendation will appear here</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 recommendation-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><i class="fas fa-calendar-alt me-2"></i>Harvest Timing</h5>
+                                        <p class="card-text" id="harvestRecommendation">Recommendation will appear here</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button class="btn btn-outline-primary" onclick="resetForm()">
+                                <i class="fas fa-redo me-2"></i>Make Another Prediction
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center section-title">Regional Yield Potential</h2>
+            <p class="text-center mb-4">Explore the agricultural potential across different regions of Odisha</p>
+
+            <div class="interactive-map">
+                <div class="text-center p-4">
+                    <i class="fas fa-map-marked-alt fa-5x text-primary mb-3"></i>
+                    <h3>Interactive Agricultural Map</h3>
+                    <p class="text-muted">Visualize soil quality, water availability, and crop suitability across regions</p>
+                    <button class="btn btn-primary mt-3" onclick="showNotification('Map feature coming soon!', 'info')">
+                        <i class="fas fa-map me-2"></i>Explore Map
+                    </button>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Regional Analysis</h4>
+                            <p>Compare different regions based on agricultural productivity potential:</p>
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Coastal Odisha</span>
+                                    <span class="badge bg-success">High Potential</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Western Odisha</span>
+                                    <span class="badge bg-warning">Medium Potential</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Northern Odisha</span>
+                                    <span class="badge bg-success">High Potential</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Southern Odisha</span>
+                                    <span class="badge bg-info">Moderate Potential</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">Soil Quality Index</h4>
+                            <p>Current soil quality metrics across regions:</p>
+                            <div class="mt-3">
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Alluvial Soil</span>
+                                        <span>92%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Black Soil</span>
+                                        <span>85%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Red Soil</span>
+                                        <span>78%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 78%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Laterite Soil</span>
+                                        <span>65%</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 65%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>-->
+
+    <!-- Crops Section (continued) -->
+    <section id="crops" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center section-title">Supported Crops</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="crop-card card h-100">
+                        <img src="https://www.nextechagrisolutions.com/blog/wp-content/uploads/2014/11/Rice-Parts.jpg" class="card-img-top crop-image" alt="Rice">
+                        <div class="card-body">
+                            <h3 class="h5">Rice</h3>
+                            <p class="card-text">Get optimized irrigation and fertilization plans for higher rice yields with our AI-powered platform.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">Random Forest</span>
+                                <span class="badge bg-success">Neural Network</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="crop-card card h-100">
+                        <img src="https://www.farmatma.in/wp-content/uploads/2019/05/wheat-cultivation-india.jpg" class="card-img-top crop-image" alt="Wheat">
+                        <div class="card-body">
+                            <h3 class="h5">Wheat</h3>
+                            <p class="card-text">Maximize your wheat production with precise predictions and tailored recommendations.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">Random Forest</span>
+                                <span class="badge bg-info">Gradient Boosting</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="crop-card card h-100">
+                        <img src="https://cdn.britannica.com/36/167236-050-BF90337E/Ears-corn.jpg" class="card-img-top crop-image" alt="Corn">
+                        <div class="card-body">
+                            <h3 class="h5">Corn</h3>
+                            <p class="card-text">Optimize your corn cultivation with data-driven insights on irrigation and fertilization.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">Random Forest</span>
+                                <span class="badge bg-warning">XGBoost</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Additional crop cards -->
+                <div class="col-md-4 mb-4">
+                    <div class="crop-card card h-100">
+                        <img src="https://a-z-animals.com/media/2022/07/shutterstock_767632852.jpg" class="card-img-top crop-image" alt="Sugarcane">
+                        <div class="card-body">
+                            <h3 class="h5">Sugarcane</h3>
+                            <p class="card-text">Increase your sugarcane yield with precision farming recommendations.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">Random Forest</span>
+                                <span class="badge bg-success">Neural Network</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="crop-card card h-100">
+                        <img src="https://wallpapercave.com/wp/wp8255679.jpg" class="card-img-top crop-image" alt="Pulses">
+                        <div class="card-body">
+                            <h3 class="h5">Pulses</h3>
+                            <p class="card-text">Optimize pulse cultivation with our specialized prediction models.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">Random Forest</span>
+                                <span class="badge bg-info">Gradient Boosting</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="crop-card card h-100">
+                        <img src="http://i.huffpost.com/gen/3558324/images/o-UZBEKISTAN-COTTON-facebook.jpg" class="card-img-top crop-image" alt="Cotton">
+                        <div class="card-body">
+                            <h3 class="h5">Cotton</h3>
+                            <p class="card-text">Maximize your cotton yield with tailored irrigation and pest control plans.</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">Random Forest</span>
+                                <span class="badge bg-warning">XGBoost</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <h2 class="text-center section-title">About CropYield Pro</h2>
+            <div class="row">
+                <div class="col-lg-6">
+                    <h3>Our Mission</h3>
+                    <p>CropYield Pro was founded with a simple mission: to empower farmers with AI-driven insights that maximize crop yields while minimizing environmental impact. We combine cutting-edge machine learning with agricultural expertise to deliver
+                        accurate predictions and actionable recommendations.</p>
+                    <p>Our platform is designed specifically for the diverse agricultural landscape of Odisha, taking into account regional variations in soil, climate, and farming practices.</p>
+
+                    <h3 class="mt-4">Our Technology</h3>
+                    <p>We utilize multiple machine learning models including Random Forest, Neural Networks, and Gradient Boosting algorithms trained on thousands of data points from farms across Odisha. Our models continuously learn and improve as more
+                        data becomes available.</p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4>Why Choose CropYield Pro?</h4>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Accurate predictions with 96%+ accuracy</li>
+                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Tailored to Odisha's agricultural conditions</li>
+                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Multi-language support for local farmers</li>
+                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Real-time weather and soil data integration</li>
+                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Actionable recommendations for improved yield</li>
+                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Free basic service with premium options</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center section-title">Contact Us</h2>
+            <div class="row">
+                <div class="col-lg-6">
+                    <form id="contactForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Your Name</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4>Get In Touch</h4>
+                            <p>We'd love to hear from you. Whether you have questions about our platform, need technical support, or want to partner with us, reach out to our team.</p>
+
+                            <div class="mt-4">
+                                <h5><i class="fas fa-map-marker-alt me-2"></i>Address</h5>
+                                <p>123 Agriculture Street, Bhubaneswar, Odisha 751024</p>
+
+                                <h5 class="mt-3"><i class="fas fa-phone me-2"></i>Phone</h5>
+                                <p>+91 98765 43210</p>
+
+                                <h5 class="mt-3"><i class="fas fa-envelope me-2"></i>Email</h5>
+                                <p>support@cropyieldpro.com</p>
+
+                                <h5 class="mt-3"><i class="fas fa-clock me-2"></i>Business Hours</h5>
+                                <p>Monday - Friday: 9AM - 5PM<br>Saturday: 10AM - 2PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <h4 class="text-uppercase mb-4">CropYield Pro</h4>
+                    <p>AI-powered crop yield prediction platform designed to help Odisha farmers maximize their agricultural productivity through data-driven insights.</p>
+                    <div class="mt-3">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h5 class="text-uppercase mb-4">Quick Links</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2"><a href="#home">Home</a></li>
+                        <li class="mb-2"><a href="#features">Features</a></li>
+                        <li class="mb-2"><a href="#prediction">Prediction</a></li>
+                        <li class="mb-2"><a href="#crops">Crops</a></li>
+                        <li class="mb-2"><a href="#about">About</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h5 class="text-uppercase mb-4">Resources</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2"><a href="#">Blog</a></li>
+                        <li class="mb-2"><a href="#">FAQs</a></li>
+                        <li class="mb-2"><a href="#">Tutorials</a></li>
+                        <li class="mb-2"><a href="#">Research Papers</a></li>
+                        <li><a href="#">Case Studies</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <h5 class="text-uppercase mb-4">Newsletter</h5>
+                    <p>Subscribe to our newsletter for the latest updates on agricultural technology and tips.</p>
+                    <form class="footer-newsletter">
+                        <div class="input-group mb-3">
+                            <input type="email" class="form-control" placeholder="Your email address" aria-label="Email">
+                            <button class="btn btn-primary" type="button">Subscribe</button>
+                        </div>
+                    </form>
+                    <div class="app-badges mt-3">
+                        <p class="mb-2">Download our mobile app:</p>
+                        <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/320px-Google_Play_Store_badge_EN.svg.png" alt="Google Play"></a>
+                        <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Download_on_the_App_Store_Badge.svg/320px-Download_on_the_App_Store_Badge.svg.png" alt="App Store"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom text-center">
+                <p class="mb-0">&copy; 2023 CropYield Pro. All rights reserved.</p>
+                <div class="mt-2">
+                    <a href="#" class="text-white me-3">Privacy Policy</a>
+                    <a href="#" class="text-white me-3">Terms of Service</a>
+                    <a href="#" class="text-white">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI Chatbot -->
+    <div class="chatbot-container">
+        <div class="chatbot-btn" id="chatbotButton">
+            <i class="fas fa-robot fa-2x"></i>
+        </div>
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <h5 class="mb-0">CropYield Assistant</h5>
+                <button class="btn-close btn-close-white" id="closeChatbot"></button>
+            </div>
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="message bot-message">
+                    Hello! I'm your CropYield Assistant. How can I help you with your farming questions today?
+                </div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="chatbotInput" placeholder="Type your message here...">
+                <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast notification-toast" role="alert" aria-live="assertive" aria-atomic="true" id="notificationToast">
+        <div class="toast-header">
+            <strong class="me-auto" id="toastTitle">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            This is a notification message.
+        </div>
+    </div>
+    <div id="google_translate_element"></div>
+
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    includedLanguages: 'en,te,hi,es,fr',
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                },
+                'google_translate_element'
+            );
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // All previous JavaScript code remains unchanged
+        // ... (all the existing JavaScript code) ...
+
+        // Enhanced chatbot functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatbotButton = document.getElementById('chatbotButton');
+            const chatbotWindow = document.getElementById('chatbotWindow');
+            const closeChatbot = document.getElementById('closeChatbot');
+            const sendMessageButton = document.getElementById('sendMessage');
+            const chatbotInput = document.getElementById('chatbotInput');
+            const chatbotMessages = document.getElementById('chatbotMessages');
+
+            // Toggle chatbot window
+            chatbotButton.addEventListener('click', function() {
+                chatbotWindow.style.display = chatbotWindow.style.display === 'flex' ? 'none' : 'flex';
+            });
+
+            closeChatbot.addEventListener('click', function() {
+                chatbotWindow.style.display = 'none';
+            });
+
+            // Send message functionality
+            function sendMessage() {
+                const message = chatbotInput.value.trim();
+                if (message) {
+                    // Add user message
+                    addMessage(message, 'user');
+                    chatbotInput.value = '';
+
+                    // Simulate bot response after a short delay
+                    setTimeout(() => {
+                        const botResponse = generateBotResponse(message);
+                        addMessage(botResponse, 'bot');
+                    }, 1000);
+                }
+            }
+
+            sendMessageButton.addEventListener('click', sendMessage);
+            chatbotInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+                messageDiv.textContent = text;
+                chatbotMessages.appendChild(messageDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }
+
+            function generateBotResponse(userMessage) {
+                const lowerMessage = userMessage.toLowerCase();
+
+                if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+                    return "Hello! How can I assist you with your farming queries today?";
+                } else if (lowerMessage.includes('yield') || lowerMessage.includes('prediction')) {
+                    return "Our yield predictions use machine learning models trained on historical data, weather patterns, and soil conditions. You can get a prediction by filling out the form in the Prediction section.";
+                } else if (lowerMessage.includes('rice') || lowerMessage.includes('paddy')) {
+                    return "For rice cultivation, we recommend maintaining proper water levels, using nitrogen-rich fertilizers, and monitoring for common pests like stem borers. The optimal temperature for rice is between 20-35°C.";
+                } else if (lowerMessage.includes('weather') || lowerMessage.includes('rain')) {
+                    return "Our platform integrates real-time weather data to provide accurate predictions. You can check current weather conditions in the Features section.";
+                } else if (lowerMessage.includes('soil') || lowerMessage.includes('fertilizer')) {
+                    return "Soil health is crucial for good yields. We recommend testing your soil every season and using fertilizers based on the nutrient deficiencies. Our platform can provide specific recommendations based on your soil type.";
+                } else if (lowerMessage.includes('pest') || lowerMessage.includes('disease')) {
+                    return "For pest control, we recommend integrated pest management approaches. Regular monitoring, biological controls, and targeted pesticide use can help manage pests effectively while minimizing environmental impact.";
+                } else if (lowerMessage.includes('thank')) {
+                    return "You're welcome! Is there anything else you'd like to know?";
+                } else {
+                    return "I'm here to help with agricultural advice. You can ask me about crop yields, weather impacts, soil health, or pest management. How can I assist you?";
+                }
+            }
+
+            // Contact form submission
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showNotification('Thank you for your message! We will get back to you soon.', 'success');
+                    contactForm.reset();
+                });
+            }
+
+            // Newsletter subscription
+            const newsletterForm = document.querySelector('.footer-newsletter');
+            if (newsletterForm) {
+                newsletterForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showNotification('Thank you for subscribing to our newsletter!', 'success');
+                    newsletterForm.reset();
+                });
+            }
+        });
+
+        // Function to show notification toast
+        function showNotification(message, type = 'info') {
+            const toast = new bootstrap.Toast(document.getElementById('notificationToast'));
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+
+            // Set title based on type
+            if (type === 'success') {
+                toastTitle.textContent = 'Success';
+                toastTitle.className = 'me-auto text-success';
+            } else if (type === 'error') {
+                toastTitle.textContent = 'Error';
+                toastTitle.className = 'me-auto text-danger';
+            } else if (type === 'warning') {
+                toastTitle.textContent = 'Warning';
+                toastTitle.className = 'me-auto text-warning';
+            } else {
+                toastTitle.textContent = 'Information';
+                toastTitle.className = 'me-auto text-info';
+            }
+
+            toastMessage.textContent = message;
+            toast.show();
+        }
+    </script>
+    <!-- 🌍 Google Translate -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    includedLanguages: 'en,te,hi,es,fr', // English, Telugu, Hindi, Spanish, French
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                },
+                'google_translate_element'
+            );
+        }
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        function translatePage(lang) {
+            var select = document.querySelector(".goog-te-combo");
+            if (select) {
+                select.value = lang;
+                select.dispatchEvent(new Event('change'));
+            }
+        }
+    </script>
+    <script>
+        // Initialize Google Translate
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en'
+            }, 'google_translate_element');
+        }
+
+        // Apply translation
+        function applyTranslation(lang) {
+            let select = document.querySelector("select.goog-te-combo");
+            if (select) {
+                select.value = lang;
+                select.dispatchEvent(new Event("change"));
+            }
+        }
+
+        // Try location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(success, showManual, {
+                timeout: 5000
+            });
+        } else {
+            showManual();
+        }
+
+        function success(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+
+            // OpenCage API (replace YOUR_API_KEY with real one)
+            fetch(`https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lon}&key=YOUR_API_KEY`)
+                .then(res => res.json())
+                .then(data => {
+                    let country = data.results[0].components.country_code; // "in"
+                    let state = data.results[0].components.state || "";
+
+                    let lang = "en"; // default
+                    if (country === "in") {
+                        if (state.toLowerCase().includes("odisha")) {
+                            lang = "or"; // Odia
+                        } else {
+                            lang = "hi"; // Hindi
+                        }
+                    }
+
+                    applyTranslation(lang);
+                })
+                .catch(() => showManual());
+        }
+
+        function showManual() {
+            document.getElementById("languageBox").style.display = "block";
+        }
+
+        // Manual dropdown
+        document.getElementById("language").addEventListener("change", function() {
+            if (this.value) {
+                applyTranslation(this.value);
+            }
+        });
+    </script>-->
+
+    <!-- Google Translate script -->
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <div id="google_translate_element" style="display:none;"></div>
+
+    <script type="text/javascript">
+        // Load Google Translate
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    includedLanguages: 'en,hi,te,or,ta,kn,ml,bn', // add more languages here
+                    autoDisplay: false
+                },
+                'google_translate_element'
+            );
+        }
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+        // Apply translation using Google Translate dropdown
+        function applyTranslation(lang) {
+            let interval = setInterval(() => {
+                let select = document.querySelector("select.goog-te-combo");
+                if (select) {
+                    select.value = lang;
+                    select.dispatchEvent(new Event("change"));
+                    clearInterval(interval);
+                    console.log("Applied:", lang);
+                }
+            }, 500);
+        }
+
+        // GPS location detection
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(success, () => console.log("Location denied"), {
+                timeout: 5000
+            });
+        }
+
+        async function success(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+
+            try {
+                // 🌍 Reverse geocode using OpenStreetMap Nominatim
+                let res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+                let data = await res.json();
+                let state = (data.address.state || "").toLowerCase();
+                let lang = "en"; // default English
+
+                // Map state → language
+                if (state.includes("telangana") || state.includes("andhra")) {
+                    lang = "te"; // Telugu
+                } else if (state.includes("odisha") || state.includes("orissa")) {
+                    lang = "or"; // Odia
+                } else if (state.includes("tamil nadu")) {
+                    lang = "ta"; // Tamil
+                } else if (state.includes("karnataka")) {
+                    lang = "kn"; // Kannada
+                } else if (state.includes("kerala")) {
+                    lang = "ml"; // Malayalam
+                } else if (state.includes("west bengal")) {
+                    lang = "bn"; // Bengali
+                } else if (
+                    state.includes("delhi") ||
+                    state.includes("uttar pradesh") ||
+                    state.includes("madhya pradesh") ||
+                    state.includes("bihar")
+                ) {
+                    lang = "hi"; // Hindi
+                }
+
+                // Auto-translate page
+                applyTranslation(lang);
+            } catch (e) {
+                console.error("Location lookup failed:", e);
+            }
+        }
+    </script>
+    <script>
+        function showWeatherMessage(message, color) {
+            const bar = document.createElement("div");
+            bar.innerText = message;
+            bar.style.background = color;
+            bar.style.color = "white";
+            bar.style.padding = "12px";
+            bar.style.fontSize = "18px";
+            bar.style.fontWeight = "bold";
+            bar.style.textAlign = "center";
+            bar.style.position = "fixed";
+            bar.style.top = "0";
+            bar.style.left = "0";
+            bar.style.width = "100%";
+            bar.style.zIndex = "9999";
+
+            document.body.style.paddingTop = "50px";
+            document.body.prepend(bar);
+        }
+
+        async function fetchWeather(lat, lon) {
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+                console.log("🌍 Fetching weather from:", url);
+
+                const res = await fetch(url);
+                if (!res.ok) {
+                    console.error("❌ Weather API error:", res.status, res.statusText);
+                    return;
+                }
+
+                const data = await res.json();
+                console.log("✅ Weather data received:", data);
+
+                if (!data.current_weather) return;
+
+                const temp = data.current_weather.temperature;
+                const code = data.current_weather.weathercode;
+
+                let message = "🟢 Weather is normal.";
+                let color = "green";
+
+                // Rain & thunderstorm codes in Open-Meteo
+                if ([61, 62, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)) {
+                    message = "🔴 Heavy rain expected — protect your crops!";
+                    color = "red";
+                } else if (temp > 35) {
+                    message = "🟠 Too hot — take precautions for your crops!";
+                    color = "orange";
+                }
+
+                showWeatherMessage(message, color);
+            } catch (err) {
+                console.error("❌ Weather fetch failed:", err);
+            }
+        }
+
+        function getLocationAndWeather() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        console.log("📍 Location detected:", pos.coords);
+                        fetchWeather(pos.coords.latitude, pos.coords.longitude);
+                    },
+                    (err) => {
+                        console.error("❌ Location error:", err);
+                    }
+                );
+            } else {
+                console.error("❌ Geolocation not supported in this browser.");
+            }
+        }
+
+        window.addEventListener("load", getLocationAndWeather);
+    </script>
+
+</body>
+
+</html>
