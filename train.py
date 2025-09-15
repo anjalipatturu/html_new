@@ -1,85 +1,76 @@
-import os
 import pandas as pd
 import numpy as np
-import joblib
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, PolynomialFeatures
+import pickle
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.metrics import mean_squared_error, r2_score
 
-def print_metrics(y_true, y_pred, prefix=""):
-    mse = mean_squared_error(y_true, y_pred)
-    rmse = np.sqrt(mse)
-    mae = mean_absolute_error(y_true, y_pred)
-    r2 = r2_score(y_true, y_pred)
-    print(f"{prefix} RMSE: {rmse:.2f}, MAE: {mae:.2f}, R2: {r2:.3f}")
+# Load your dataset
+df = pd.read_csv("data/crop_data.csv")
 
-def main():
-    # Load dataset
-    df = pd.read_csv("data/crop_data.csv")
+# Standardize column names
+df.columns = [c.lower().strip() for c in df.columns]
+df = df.rename(columns={"crop":"crop_name","soil":"soil_type","seed":"seed_variety"})
 
-    # Clean column names
-    df.columns = [c.strip().lower() for c in df.columns]
+# Fill missing numeric values
+num_cols = ["fertilizer_kg", "no_of_acres", "yield"]
+for col in num_cols:
+    if col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+        df[col] = df[col].fillna(df[col].median())
 
-    numeric_features = ["fertilizer", "area_hectares"]
-    categorical_features = ["soil_type", "seed_variety"]
-    target = "yield"
+# Fill missing categorical values
+cat_cols = ["crop_name","soil_type","seed_variety"]
+for col in cat_cols:
+    if col in df.columns:
+        df[col] = df[col].fillna("Unknown")
 
-    expected = numeric_features + categorical_features + [target]
-    missing = [col for col in expected if col not in df.columns]
-    if missing:
-        raise ValueError(f"❌ Missing columns: {missing}. Found columns: {list(df.columns)}")
+# Derived features
+df["fertilizer_per_acre"] = df["fertilizer_kg"] / df["no_of_acres"]
 
-    X = df[numeric_features + categorical_features]
-    y = df[target]
+# Features and target
+X = df[["crop_name","soil_type","seed_variety","fertilizer_kg","no_of_acres","fertilizer_per_acre"]]
+y = df["yield"]
 
-    # Train-test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Preprocessing: categorical + numeric scaling
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("cat", OneHotEncoder(handle_unknown="ignore"), ["crop_name","soil_type","seed_variety"]),
+        ("num", StandardScaler(), ["fertilizer_kg","no_of_acres","fertilizer_per_acre"])
+    ]
+)
 
-    # Preprocessing with polynomial features for numeric
-    preprocessor = ColumnTransformer([
-        ("num", Pipeline([
-            ("scaler", StandardScaler()),
-            ("poly", PolynomialFeatures(degree=2, include_bias=False))
-        ]), numeric_features),
-        ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_features),
-    ])
+# Pipeline with HistGradientBoostingRegressor
+pipeline = Pipeline([
+    ("preprocessor", preprocessor),
+    ("model", HistGradientBoostingRegressor(
+        max_iter=3000,
+        max_depth=25,
+        learning_rate=0.05,
+        min_samples_leaf=3,
+        random_state=42
+    ))
+])
 
-    # Model pipeline with RandomForest
-    pipeline = Pipeline([
-        ("preprocessor", preprocessor),
-        ("model", RandomForestRegressor(random_state=42))
-    ])
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Baseline training
-    pipeline.fit(X_train, y_train)
-    y_pred = pipeline.predict(X_test)
-    print_metrics(y_test, y_pred, prefix="Baseline")
+# Train
+pipeline.fit(X_train, y_train)
 
-    # Grid search tuning
-    param_grid = {
-        "model__n_estimators": [50, 100, 200],
-        "model__max_depth": [None, 10, 20],
-        "model__min_samples_split": [2, 5]
-    }
+# Evaluate
+y_pred = pipeline.predict(X_test)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+r2 = r2_score(y_test, y_pred)
 
-    grid = GridSearchCV(pipeline, param_grid, cv=3, scoring="neg_mean_squared_error", n_jobs=-1)
-    grid.fit(X_train, y_train)
+print(f"✅ RMSE: {rmse:.2f} kg")
+print(f"✅ R2 Score: {r2:.2f}")
 
-    print("✅ Best params:", grid.best_params_)
-    best_model = grid.best_estimator_
+# Save model
+with open("crop_model.pkl", "wb") as f:
+    pickle.dump(pipeline, f)
 
-    # Evaluate tuned model
-    y_pred_best = best_model.predict(X_test)
-    print_metrics(y_test, y_pred_best, prefix="Tuned")
-
-    # Save model
-    os.makedirs("models", exist_ok=True)
-    joblib.dump(best_model, "models/crop_yield_model.joblib")
-    print("✅ Model saved to models/crop_yield_model.joblib")
-
-if __name__ == "__main__":
-    main()
+print("✅ Model trained and saved as crop_model.pkl")
