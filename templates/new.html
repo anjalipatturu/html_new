@@ -755,18 +755,18 @@
                         </form>
                     </div>
                     <!-- Crop Yield Predictor Form Start -->
-<div class="container py-5">
+<!--<div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card p-4">
                 <h1 class="text-center mb-4">🌱 Crop Yield Predictor</h1>
               
-  <!-- fields same as before -->
+ 
   <div class="mb-3">
      <div class="card p-4 shadow mb-4">
   <h3 class="text-center mb-3">🌱 Crop Yield Predictor</h3>
 
-  <!-- Result placeholders -->
+ 
   <div id="resultBox" class="alert alert-success text-center d-none"></div>
   <div id="errorBox" class="alert alert-danger text-center d-none"></div>
 
@@ -823,13 +823,90 @@
   </div>
 {% endif %}
 
-<!-- Your regional prediction HTML continues below -->
+
 
             </div>
         </div>
     </div>
 </div>
 <!-- Crop Yield Predictor Form End -->
+<div style="max-width:720px; margin:40px auto; font-family:'Roboto',sans-serif; padding:0 16px; background:#f9f9f9; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.08);">
+    <header style="background:linear-gradient(90deg,#43a047,#66bb6a); color:white; text-align:center; padding:20px 0; font-size:1.8em; font-weight:700; border-top-left-radius:20px; border-top-right-radius:20px; box-shadow:0 6px 12px rgba(0,0,0,0.1);">
+        🌾 Smart Crop Yield Prediction & Optimization
+    </header>
+    <form method="POST" style="padding:30px; display:flex; flex-direction:column; gap:18px;">
+        
+        <label style="font-weight:600; color:#2e7d32;">Crop Name</label>
+        <div style="position:relative;">
+            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px;">🌱</span>
+            <select name="crop_name" style="width:100%; padding:12px 14px 12px 38px; border-radius:10px; border:1px solid #c0c0c0; font-size:15px;">
+                <option {{'selected' if form.get('crop_name')=='Wheat' else ''}}>Wheat</option>
+                <option {{'selected' if form.get('crop_name')=='Rice' else ''}}>Rice</option>
+                <option {{'selected' if form.get('crop_name')=='Maize' else ''}}>Maize</option>
+                <option {{'selected' if form.get('crop_name')=='Soybean' else ''}}>Soybean</option>
+                <option {{'selected' if form.get('crop_name')=='Cotton' else ''}}>Cotton</option>
+                <option {{'selected' if form.get('crop_name')=='Barley' else ''}}>Barley</option>
+            </select>
+        </div>
+
+        <label style="font-weight:600; color:#2e7d32;">Soil Type</label>
+        <div style="position:relative;">
+            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px;">🌍</span>
+            <select name="soil_type" style="width:100%; padding:12px 14px 12px 38px; border-radius:10px; border:1px solid #c0c0c0; font-size:15px;">
+                <option {{'selected' if form.get('soil_type')=='Loamy' else ''}}>Loamy</option>
+                <option {{'selected' if form.get('soil_type')=='Clay' else ''}}>Clay</option>
+                <option {{'selected' if form.get('soil_type')=='Sandy' else ''}}>Sandy</option>
+                <option {{'selected' if form.get('soil_type')=='Silty' else ''}}>Silty</option>
+                <option {{'selected' if form.get('soil_type')=='Peaty' else ''}}>Peaty</option>
+            </select>
+        </div>
+
+        <label style="font-weight:600; color:#2e7d32;">Fertilizer (kg)</label>
+        <div style="position:relative;">
+            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px;">🧪</span>
+            <input type="number" step="1" min="0" name="fertilizer_kg" value="{{form.get('fertilizer_kg','50')}}" style="width:100%; padding:12px 14px 12px 38px; border-radius:10px; border:1px solid #c0c0c0; font-size:15px;" />
+        </div>
+
+        <label style="font-weight:600; color:#2e7d32;">No. of Acres</label>
+        <div style="position:relative;">
+            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px;">🌾</span>
+            <input type="number" step="0.1" min="0" name="no_of_acres" value="{{form.get('no_of_acres','1')}}" style="width:100%; padding:12px 14px 12px 38px; border-radius:10px; border:1px solid #c0c0c0; font-size:15px;" />
+        </div>
+
+        <label style="font-weight:600; color:#2e7d32;">Seed Variety</label>
+        <div style="position:relative;">
+            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px;">🌿</span>
+            <select name="seed_variety" style="width:100%; padding:12px 14px 12px 38px; border-radius:10px; border:1px solid #c0c0c0; font-size:15px;">
+                <option {{'selected' if form.get('seed_variety')=='Hybrid' else ''}}>Hybrid</option>
+                <option {{'selected' if form.get('seed_variety')=='Improved' else ''}}>Improved</option>
+                <option {{'selected' if form.get('seed_variety')=='Local' else ''}}>Local</option>
+            </select>
+        </div>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;">
+            <button type="submit" name="action" value="predict" style="flex:1; min-width:140px; padding:12px; border-radius:10px; border:none; background:linear-gradient(45deg,#43a047,#66bb6a); color:white; font-weight:700; cursor:pointer; transition:0.25s;">Predict Yield</button>
+            <button type="submit" name="action" value="optimize" style="flex:1; min-width:140px; padding:12px; border-radius:10px; border:none; background:linear-gradient(45deg,#0288d1,#26c6da); color:white; font-weight:700; cursor:pointer; transition:0.25s;">Optimize</button>
+            <button type="submit" name="action" value="clear" style="flex:1; min-width:140px; padding:12px; border-radius:10px; border:none; background:#9e9e9e; color:white; font-weight:700; cursor:pointer; transition:0.25s;">Clear</button>
+        </div>
+    </form>
+
+    {% if result %}
+    <div style="margin-top:24px; padding:18px; border-radius:12px; background:#e8f5e9; color:#2e7d32; font-weight:700; box-shadow:0 8px 20px rgba(0,0,0,0.06); font-size:1.1em;">
+        {{result}}
+    </div>
+    {% endif %}
+
+    {% if suggestions %}
+    <div style="margin-top:16px; padding:16px; border-radius:12px; background:#fff9c4; color:#827717; font-weight:600; box-shadow:0 6px 14px rgba(0,0,0,0.05);">
+        <strong>Optimization suggestions:</strong>
+        <ul style="margin-top:8px; padding-left:20px;">
+        {% for s in suggestions %}
+            <li>{{s}}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
 
                     <!-- Loading Spinner -->
                     <div class="loading-spinner" id="loadingSpinner">
